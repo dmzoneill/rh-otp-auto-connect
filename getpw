@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+
+./enterpw | grep HOTP | awk '{print $3}'

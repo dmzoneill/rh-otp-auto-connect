@@ -1,0 +1,14 @@
+#!/usr/bin/expect -f
+
+oauth=`cat oauth`
+pw=`cat pw`
+
+set timeout -1
+
+spawn otpclient-cli show -a $oauth
+
+expect "Type the DB decryption password:"
+
+send -- "$pw\r"
+
+expect oef

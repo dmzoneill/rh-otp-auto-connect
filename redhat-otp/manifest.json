@@ -1,0 +1,26 @@
+{
+  "name": "RedhatOTP",
+  "description": "Sick of OTP",
+  "version": "1.0",
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_page": "options.html",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "rh.png",
+      "32": "rh.png",
+      "48": "rh.png",
+      "128": "rh.png"
+    }
+  },
+  "icons": {
+    "16": "rh.png",
+    "32": "rh.png",
+    "48": "rh.png",
+    "128": "rh.png"
+  }
+}
