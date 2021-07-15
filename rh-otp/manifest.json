@@ -1,13 +1,16 @@
 {
-  "name": "RedhatOTP",
-  "description": "Sick of OTP",
+  "name": "RedHat O.T.P",
+  "description": "Proof of concept for O.T.P",
   "version": "1.0",
   "manifest_version": 3,
-  "background": {
-    "service_worker": "background.js"
-  },
-  "options_page": "options.html",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

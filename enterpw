@@ -1,14 +1,17 @@
-#!/usr/bin/expect -f
+#!/usr/bin/bash
 
-oauth=`cat oauth`
-pw=`cat pw`
+oauth=$(cat oauth) 
+pw=$(cat pw) 
+export oauth
+export pw
 
-set timeout -1
+expect << 'EOS'
+    set timeout -1
+    spawn otpclient-cli show -a $::env(oauth)
+    expect "Type the DB decryption password:"
+    send -- "$::env(pw)\r"
+    expect oef;
+    exit 0
+EOS
 
-spawn otpclient-cli show -a $oauth
 
-expect "Type the DB decryption password:"
-
-send -- "$pw\r"
-
-expect oef
