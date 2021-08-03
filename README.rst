@@ -54,6 +54,10 @@ run::
     cd src_folder
     uvicorn main:app --reload
 
+run at boot::
+
+    cp -rv .config/autostart/*.desktop ~/.conf/autostart/
+
 
 verify::
 

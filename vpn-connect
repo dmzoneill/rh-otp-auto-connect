@@ -1,8 +1,11 @@
 #!/usr/bin/bash -x
 
+sleep 15
+
 vpn=$(cat ./uuid)
 key=$(cat ./key)
 token=$(./getpw)
 echo "vpn.secrets.password:$key$token" > /tmp/vpnpw
 sudo nmcli con up uuid $vpn passwd-file /tmp/vpnpw
 sudo rm -f /tmp/vpnpw
+sleep 15
