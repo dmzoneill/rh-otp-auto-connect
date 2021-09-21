@@ -1,0 +1,49 @@
+#!/usr/bin/python3
+
+import argparse
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+
+my_parser = argparse.ArgumentParser(description='login to redhat osd')
+my_parser.add_argument('env', metavar='env', type=str, help='the env to get a token')
+args = my_parser.parse_args()
+
+url = None
+
+if args.env == "e":
+    url = "https://oauth-openshift.apps.c-rh-c-eph.8p0c.p1.openshiftapps.com/oauth/token/request"
+elif args.env == "p":
+    url = "https://oauth-openshift.apps.crcp01ue1.o9m8.p1.openshiftapps.com/oauth/token/request"
+elif args.env == "s":
+    url = "https://oauth-openshift.apps.crcs02ue1.urby.p1.openshiftapps.com/oauth/token/request"
+else:
+    url = None
+
+options = Options()
+# change this to point at your profile
+
+options.add_argument(r"--user-data-dir=/home/daoneill/.config/google-chrome/Profile 2")
+# options.add_argument('--headless')
+# https://chromedriver.chromium.org/
+driver = webdriver.Chrome(executable_path=r'/opt/chromedriver/chromedriver', options=options)
+driver.get(url)
+wait = WebDriverWait(driver, 10)
+wait.until(lambda driver: driver.current_url != url)
+link = driver.find_element_by_xpath('//a')
+link.click()
+
+Button=''
+while not Button:
+    try:
+        Button = driver.find_element_by_xpath('//button')
+        Button.click()
+    except:
+        continue
+
+login_cmd = driver.find_element_by_xpath('//pre').text
+login_cmd.replace("('","").replace("')","").replace("'","").replace("\n","")
+print(login_cmd)
+
+driver.close()

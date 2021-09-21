@@ -69,3 +69,25 @@ usage::
     In the extenions in the top right hand of the browser, pin the redhat icon.
     Hit the redhat button when on auth.redhat.com and it will fill in the password box
 
+RedHat OSD console token fetcher
+================================
+
+install::
+
+    https://chromedriver.chromium.org/
+    cp chromedriver /opt/chromedriver/chromedriver
+    cp rhtoken /usr/local/bin/rhtoken
+    chmod +x /usr/local/bin/rhtoken
+
+configure::
+
+    Open the google chrome and add a new profile "SSO"
+    Type "chrome:://version" in the location bar
+    Note the profile path
+    Modify rhtoken lines 27 & 30
+
+usage::
+    
+    rhtoken s # get a stage token    
+    rhtoken p # get a production token    
+    rhtoken e # get a ephemeral token
