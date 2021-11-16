@@ -12,9 +12,24 @@ $("#loadedPassword").click(function(){
 
 function updatePasswordBox() {
     chrome.storage.sync.get('pw', function(result) {
+        var now = new Date().getTime();
+        while(new Date().getTime() < now + 1500){}
         let field = document.getElementById("password");
-        field.value = result.pw
-        field.style.border = "thick solid #0000FF";        
+        if(window.location.href.includes('sso.redhat.com/auth/realms')) {
+            document.getElementById("username").value = "daoneill@redhat.com";   
+            field.value = result.pw.substring(0, result.pw.length - 6);
+            field.style.border = "thick solid #0000FF";            
+            document.getElementById("rh-password-verification-submit-button").click();            
+        }
+        else if(window.location.href.includes('auth.redhat.com/auth/realms')){
+            field.value = result.pw;
+            field.style.border = "thick solid #0000FF";
+            document.getElementById("submit").click();          
+        }
+        else {
+            field.value = result.pw; 
+            field.style.border = "thick solid #0000FF";         
+        }        
     });    
 }
 

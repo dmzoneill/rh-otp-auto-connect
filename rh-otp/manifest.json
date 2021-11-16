@@ -11,6 +11,16 @@
   "host_permissions": [
     "http://localhost:8000/"
   ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.openshiftapps.com/oauth/authorize*", 
+        "*://gitlab.cee.redhat.com/users/sign_in"
+      ],
+      "js": ["contentscript.js"],
+      "run_at": "document_end"
+    }  
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

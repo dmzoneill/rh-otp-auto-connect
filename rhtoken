@@ -1,49 +1,123 @@
 #!/usr/bin/python3
 
 import argparse
+import platform
+import requests
+import subprocess
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import WebDriverException
 
-my_parser = argparse.ArgumentParser(description='login to redhat osd')
-my_parser.add_argument('env', metavar='env', type=str, help='the env to get a token')
-args = my_parser.parse_args()
+chrome_driver_dir = "/opt/chromedriver/"
+chrome_driver_location = chrome_driver_dir + "/chromedriver"
+profile_location = "/home/daoneill/.config/google-chrome/Profile 3"
 
-url = None
 
-if args.env == "e":
-    url = "https://oauth-openshift.apps.c-rh-c-eph.8p0c.p1.openshiftapps.com/oauth/token/request"
-elif args.env == "p":
-    url = "https://oauth-openshift.apps.crcp01ue1.o9m8.p1.openshiftapps.com/oauth/token/request"
-elif args.env == "s":
-    url = "https://oauth-openshift.apps.crcs02ue1.urby.p1.openshiftapps.com/oauth/token/request"
-else:
-    url = None
+def get_chrome_version():
+    return subprocess.getoutput("google-chrome --version | awk \'{print $3}\'")
 
-options = Options()
-# change this to point at your profile
 
-options.add_argument(r"--user-data-dir=/home/daoneill/.config/google-chrome/Profile 2")
-# options.add_argument('--headless')
-# https://chromedriver.chromium.org/
-driver = webdriver.Chrome(executable_path=r'/opt/chromedriver/chromedriver', options=options)
-driver.get(url)
-wait = WebDriverWait(driver, 10)
-wait.until(lambda driver: driver.current_url != url)
-link = driver.find_element_by_xpath('//a')
-link.click()
+def get_chrome_driver_version():
+    return subprocess.getoutput("chromedriver --version | awk \'{print $2}\'")
 
-Button=''
-while not Button:
+
+def chmod_chrome_driver_download():
+    print("Fixing perms on chrome driver download")
+    return subprocess.getoutput("chmod 775 /tmp/download.zip")
+
+
+def chmod_chrome_driver():
+    print("Fixing perms on chrome driver download")
+    return subprocess.getoutput("chmod 775 " + chrome_driver_location)
+
+
+def unzip_chrome_driver():
+    print("Unzipping chrome driver")
+    return subprocess.getoutput("unzip -o /tmp/download.zip -d " + chrome_driver_dir)
+
+
+def download_chrome_driver():
+    print("Downloading chrome driver")
+
+    chrome_version = get_chrome_version()
+    url = 'https://chromedriver.storage.googleapis.com/favicon.ico'
+
+    if platform.system() == "Linux":
+        url = "https://chromedriver.storage.googleapis.com/" + chrome_version + "/chromedriver_linux64.zip"
+    elif platform.system() == "Darwin":
+        url = "https://chromedriver.storage.googleapis.com/" + chrome_version + "/chromedriver_mac64.zip"
+    else:
+        url = None
+
+    r = requests.get(url, allow_redirects=True)
+    open('/tmp/download.zip', 'wb').write(r.content)
+    chmod_chrome_driver_download()
+    print(unzip_chrome_driver())
+    chmod_chrome_driver()
+
+ 
+def update_if_necessary():
+    if get_chrome_version() != get_chrome_driver_version():
+        print("Chrome version = " + get_chrome_version())
+        print("Chrome driver version = " + get_chrome_driver_version())
+        download_chrome_driver()
+
+
+def get_token_string():
     try:
-        Button = driver.find_element_by_xpath('//button')
-        Button.click()
-    except:
-        continue
+        my_parser = argparse.ArgumentParser(description='login to redhat osd')
+        my_parser.add_argument('env', metavar='env', type=str, help='the env to get a token')
+        args = my_parser.parse_args()
 
-login_cmd = driver.find_element_by_xpath('//pre').text
-login_cmd.replace("('","").replace("')","").replace("'","").replace("\n","")
-print(login_cmd)
+        url = None
 
-driver.close()
+        if args.env == "e":
+            url = "https://oauth-openshift.apps.c-rh-c-eph.8p0c.p1.openshiftapps.com/oauth/token/request"
+        elif args.env == "p":
+            url = "https://oauth-openshift.apps.crcp01ue1.o9m8.p1.openshiftapps.com/oauth/token/request"
+        elif args.env == "s":
+            url = "https://oauth-openshift.apps.crcs02ue1.urby.p1.openshiftapps.com/oauth/token/request"
+        else:
+            url = None
+
+        options = Options()
+        # change this to point at your profile
+
+        options.add_argument("--user-data-dir=" + profile_location)
+        # options.add_argument('--headless')
+        # https://chromedriver.chromium.org/
+        driver = webdriver.Chrome(executable_path=chrome_driver_location, options=options)
+        driver.get(url)
+        wait = WebDriverWait(driver, 10)
+        wait.until(lambda driver: driver.current_url != url)
+        link = driver.find_element_by_xpath('//a')
+        link.click()
+
+        Button=''
+        while not Button:
+            try:
+                Button = driver.find_element_by_xpath('//button')
+                Button.click()
+            except:
+                continue
+
+        login_cmd = driver.find_element_by_xpath('//pre').text
+        login_cmd.replace("('","").replace("')","").replace("'","").replace("\n","")
+        print(login_cmd)
+
+        driver.close()
+    except FileNotFoundError as fileNotFoundError:
+        print(fileNotFoundError)
+        download_chrome_driver()
+    except WebDriverException as webDriverException:
+        print(webDriverException)
+        download_chrome_driver()
+    except ModuleNotFoundError as moduleNotFoundError:
+        print("if missing selenium, then try:")
+        print("\n\tsudo -E pip3 install --user selenium\n")
+        print("Then re-run the script")
+
+if __name__ == "__main__":
+    get_token_string()
