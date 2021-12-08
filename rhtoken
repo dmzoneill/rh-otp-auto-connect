@@ -6,13 +6,14 @@ import requests
 import subprocess
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import WebDriverException
 
 chrome_driver_dir = "/opt/chromedriver/"
 chrome_driver_location = chrome_driver_dir + "/chromedriver"
-profile_location = "/home/daoneill/.config/google-chrome/Profile 3"
+profile_location = "/home/daoneill/.config/google-chrome/Profile 4/Default"
 
 
 def get_chrome_version():
@@ -83,27 +84,25 @@ def get_token_string():
             url = None
 
         options = Options()
-        # change this to point at your profile
-
         options.add_argument("--user-data-dir=" + profile_location)
         # options.add_argument('--headless')
-        # https://chromedriver.chromium.org/
-        driver = webdriver.Chrome(executable_path=chrome_driver_location, options=options)
+        service = Service(chrome_driver_location)
+        driver = webdriver.Chrome(service=service, options=options)
         driver.get(url)
         wait = WebDriverWait(driver, 10)
         wait.until(lambda driver: driver.current_url != url)
-        link = driver.find_element_by_xpath('//a')
+        link = driver.find_element(By.XPATH,'//a')
         link.click()
 
         Button=''
         while not Button:
             try:
-                Button = driver.find_element_by_xpath('//button')
+                Button = driver.find_element(By.XPATH,'//button')
                 Button.click()
             except:
                 continue
 
-        login_cmd = driver.find_element_by_xpath('//pre').text
+        login_cmd = driver.find_element(By.XPATH,'//pre').text
         login_cmd.replace("('","").replace("')","").replace("'","").replace("\n","")
         print(login_cmd)
 
