@@ -15,7 +15,8 @@
     {
       "matches": [
         "*://*.openshiftapps.com/oauth/authorize*", 
-        "*://gitlab.cee.redhat.com/users/sign_in"
+        "*://gitlab.cee.redhat.com/users/sign_in",
+        "*://ci.int.devshift.net/*"
       ],
       "js": ["contentscript.js"],
       "run_at": "document_end"

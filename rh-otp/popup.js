@@ -10,26 +10,48 @@ $("#loadedPassword").click(function(){
     inputc.parentNode.removeChild(inputc);
 });
 
-function updatePasswordBox() {
-    chrome.storage.sync.get('pw', function(result) {
-        var now = new Date().getTime();
-        while(new Date().getTime() < now + 1500){}
-        let field = document.getElementById("password");
+
+function queryPassword() {
+    console.log('query Password');    
+
+    chrome.storage.sync.get('pw', (result) => {
+        console.log('update password box');            
+        const pwfield = document.getElementById("password");
+        const unfield1 = document.getElementById("username");
+        const unfield2 = document.getElementById("username-verification");
+
         if(window.location.href.includes('sso.redhat.com/auth/realms')) {
-            document.getElementById("username").value = "daoneill@redhat.com";   
-            field.value = result.pw.substring(0, result.pw.length - 6);
-            field.style.border = "thick solid #0000FF";            
-            document.getElementById("rh-password-verification-submit-button").click();            
+            console.log(result.pw.substring(0, result.pw.length - 6));
+            unfield1.value = "daoneill@redhat.com";   
+            unfield2.value = "daoneill@redhat.com";              
+            pwfield.value = result.pw.substring(0, result.pw.length - 6);
+            pwfield.style.border = "thick solid #0000FF";            
+            unfield1.style.border = "thick solid #0000FF"; 
+            unfield2.style.border = "thick solid #0000FF"; 
         }
         else if(window.location.href.includes('auth.redhat.com/auth/realms')){
-            field.value = result.pw;
-            field.style.border = "thick solid #0000FF";
-            document.getElementById("submit").click();          
+            unfield1.value = "daoneill";
+            unfield1.style.border = "thick solid #0000FF";  
+            pwfield.value = result.pw;
+            pwfield.style.border = "thick solid #0000FF";       
         }
         else {
-            field.value = result.pw; 
-            field.style.border = "thick solid #0000FF";         
-        }        
+            pwfield.value = result.pw; 
+            pwfield.style.border = "thick solid #0000FF";         
+        }   
+
+        setTimeout(function() {
+            const pwfield = document.getElementById("password");  
+            if(window.location.href.includes('sso.redhat.com/auth/realms')) {
+                console.log(pwfield.value); 
+                // document.getElementById("rh-password-verification-submit-button").click();
+            }
+            else if(window.location.href.includes('auth.redhat.com/auth/realms')){
+                console.log(pwfield.value); 
+                // document.getElementById("submit").click();
+                // document.getElementsByName("submit")[0].click();                
+            } 
+        }, 2000);        
     });    
 }
 
@@ -39,10 +61,9 @@ async function init(){
     $.get( "http://localhost:8000", function( data ) {
         $("#loadedPassword").text(data);
         chrome.storage.sync.set({pw: data}, function() {
-            console.log('Value is set to ' + data);
             chrome.scripting.executeScript({
                 target: { tabId: tab.id },
-                function: updatePasswordBox
+                function: queryPassword
             });
         });        
     });  
