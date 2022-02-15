@@ -10,6 +10,8 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import WebDriverException
+import traceback
+import time
 
 chrome_driver_dir = "/opt/chromedriver/"
 chrome_driver_location = chrome_driver_dir + "/chromedriver"
@@ -99,20 +101,30 @@ def get_token_string():
             try:
                 Button = driver.find_element(By.XPATH,'//button')
                 Button.click()
+                time.sleep(0.5)
             except:
                 continue
 
-        login_cmd = driver.find_element(By.XPATH,'//pre').text
-        login_cmd.replace("('","").replace("')","").replace("'","").replace("\n","")
-        print(login_cmd)
+        Pre=''
+        while not Pre:
+            try:
+                Pre = driver.find_element(By.XPATH,'//pre').text
+                Pre.replace("('","").replace("')","").replace("'","").replace("\n","")
+                time.sleep(0.5)
+            except:
+                continue
+
+        print(Pre)
 
         driver.close()
     except FileNotFoundError as fileNotFoundError:
         print(fileNotFoundError)
         download_chrome_driver()
+        print(traceback.format_exc())
     except WebDriverException as webDriverException:
         print(webDriverException)
         download_chrome_driver()
+        print(traceback.format_exc())
     except ModuleNotFoundError as moduleNotFoundError:
         print("if missing selenium, then try:")
         print("\n\tsudo -E pip3 install --user selenium\n")
